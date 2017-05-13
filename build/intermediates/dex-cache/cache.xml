@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/home/kluz/Android/Sdk/extras/m2repository/com/android/support/constraint/constraint-layout-solver/1.0.0-alpha7/constraint-layout-solver-1.0.0-alpha7.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="439eeb5ffd54cbd18db0a6aea471e8356f19fc36">
+        <dex dex="/home/kluz/UgandaWorkoutAndFitness/app/build/intermediates/pre-dexed/debug/constraint-layout-solver-1.0.0-alpha7_2343166d245120eb6071cc05f4a4ebf925421337.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/kluz/.android/build-cache/d01912463941de553b90cb841a39e16f36590476/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="541a2ad68dc68aa49795821f8280b7624e6a0c9b">
+        <dex dex="/home/kluz/UgandaWorkoutAndFitness/app/build/intermediates/pre-dexed/debug/classes_bc9270775bb4c9d4d229d5aec4b1613f66141172.jar" />
+    </item>
+
+</items>
