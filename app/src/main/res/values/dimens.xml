@@ -20,4 +20,7 @@
     <dimen name="item_offset">10dp</dimen>
     <dimen name="backdrop_title">30dp</dimen>
     <dimen name="card_margin">5dp</dimen>
+    <dimen name="grid_expected_size">120dp</dimen>
+    <dimen name="item_margin_horizontal">24dp</dimen>
+    <dimen name="item_margin_vertical">8dp</dimen>
 </resources>

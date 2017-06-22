@@ -1,14 +1,11 @@
 package com.ugandaworkoutandfitness.kluz.ugandaworkoutandfitness;
 
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.graphics.Rect;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,21 +13,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,12 +32,13 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FitnessAdapter adapter;
-    private List<FitnessModel> articleList;
-    ProgressDialog progressDialog;
-    TextView header;
-    ImageView banner;
     RelativeLayout mroot;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    private FeedsAdapter adapter;
+    private List<FitnessModel> articleList;
+    private BottomNavigationView bottomNavigation;
+
+
 
 
     @Override
@@ -54,143 +46,71 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mroot = (RelativeLayout) findViewById(R.id.fitness);
-        header = (TextView) findViewById(R.id.header);
-        banner = (ImageView) findViewById(R.id.backdrop);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swifeRefresh);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        // Progress dialog
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
+
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+
+                getFeeds();
+            }
+        });
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getFeeds();
+            }
+        });
+
         articleList = new ArrayList<>();
-        adapter = new FitnessAdapter(this, articleList);
+        adapter = new FeedsAdapter(this,articleList);
         recyclerView.setAdapter(adapter);
 
 
+        bottomNavigation = (BottomNavigationView)findViewById(R.id.bottom_navigation);
+        bottomNavigation.inflateMenu(R.menu.bottom_menu);
 
+        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.action_search:
+                        //Intent i = new Intent(MainActivity.this,SellItem.class);
+                        //startActivity(i);
+                        break;
+                    case R.id.action_cart:
+                        Intent i = new Intent(MainActivity.this,SellItem.class);
+                        startActivity(i);
 
-        if(CheckNetwork.isInternetAvailable(MainActivity.this)) //returns true if internet available
-        {
-            getArticlesFitness();
-            getArticles();
-        }
-        else
-        {
-            Snackbar snack = Snackbar.make(mroot,"Ooops, Please Check Your Internet Connection.....",Snackbar.LENGTH_LONG);
-            snack.show();
-        }
+                        break;
+                    case R.id.action_hot_deals:
 
-        setSupportActionBar(toolbar);
-        initCollapsingToolbar( );
+                        break;
 
-    }
-
-    private void getArticlesFitness(){
-        progressDialog.setMessage("Loading...");
-        showDialog();
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        String url = "http://takethecorner.com/get_fitness_articles.php";
-        JsonArrayRequest arrayreq = new JsonArrayRequest(url,
-
-                new Response.Listener<JSONArray>() {
-
-                    // Takes the response from the JSON request
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        hideDialog();
-
-                        int count = 0;
-                        while (count<response.length()){
-                            try {
-                                JSONObject obj = response.getJSONObject(count);
-
-                                FitnessModel a = new FitnessModel(obj.getInt("id"),obj.getString("heading"), obj.getString("author"), obj.getString("image"),obj.getString("article"),obj.getString("date_created"));
-
-                                articleList.add(a);
-                                adapter.notifyDataSetChanged();
-
-
-                            }
-
-                            catch (JSONException e) {
-
-                                e.printStackTrace();
-                            }
-                            count++;
-                        }
-
-                    }
-                },
-
-                new Response.ErrorListener() {
-                    @Override
-                    // Handles errors that occur due to Volley
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Volley", "Error");
-                        hideDialog();
-                    }
                 }
-        );
-
-        queue.add(arrayreq);
 
 
-    }
+                return true;
+            }
+        });
 
-    public  void getArticles(){
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        String url = "http://takethecorner.com/get_header.php";
-        JsonArrayRequest arrayreq = new JsonArrayRequest(url,
-
-                new Response.Listener<JSONArray>() {
-
-                    // Takes the response from the JSON request
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        String data = "";
-                        int count = 0;
-                        while (count<response.length()){
-                            try {
-                                JSONObject obj = response.getJSONObject(count);
-                                int rank = obj.getInt("id");
-                                header.setText(obj.getString("heading"));
-                                String image_url = obj.getString("image");
-                                Glide.with(MainActivity.this).load(image_url).centerCrop().crossFade().diskCacheStrategy(DiskCacheStrategy.ALL).into(banner);
-
-
-                            }
-
-                            catch (JSONException e) {
-
-                                e.printStackTrace();
-                            }
-                            count++;
-                        }
-
-                    }
-                },
-
-                new Response.ErrorListener() {
-                    @Override
-                    // Handles errors that occur due to Volley
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Volley", "Error");
-                    }
-                }
-        );
-
-        queue.add(arrayreq);
 
 
     }
+
 
 
 
@@ -219,101 +139,73 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+      if(id==R.id.buy_item){
+            Intent i = new Intent(getApplicationContext(),BuyItem.class);
+            startActivity(i);
+
+        }else if(id==R.id.sell_item){
+            Intent i = new Intent(getApplicationContext(),SellItem.class);
+            startActivity(i);
+
+        }else if(id==R.id.search_item){
+
         }
 
         return super.onOptionsItemSelected(item);
     }
+    private void getFeeds(){
+        mSwipeRefreshLayout.setRefreshing(true);
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-    private void initCollapsingToolbar( ) {
+        String url = "http://takethecorner.com/get_fitness_articles.php";
+        JsonArrayRequest arrayreq = new JsonArrayRequest(url,
 
-        final CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(" ");
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-        appBarLayout.setExpanded(true);
+                new Response.Listener<JSONArray>() {
 
-        // hiding & showing the title when toolbar expanded & collapsed
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean isShow = false;
-            int scrollRange = -1;
+                    // Takes the response from the JSON request
+                    @Override
+                    public void onResponse(JSONArray response) {
 
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (scrollRange == -1) {
-                    scrollRange = appBarLayout.getTotalScrollRange();
+
+                        int count = 0;
+                        while (count<response.length()){
+                            try {
+                                JSONObject obj = response.getJSONObject(count);
+
+                                FitnessModel a = new FitnessModel(obj.getInt("id"),obj.getString("heading"), obj.getString("author"), obj.getString("image"),obj.getString("article"),obj.getString("date_created"));
+
+                                articleList.add(a);
+                                adapter.notifyDataSetChanged();
+
+
+                            }
+
+                            catch (JSONException e) {
+
+                                e.printStackTrace();
+                            }
+                            count++;
+                        }
+                        mSwipeRefreshLayout.setRefreshing(false);
+
+                    }
+                },
+
+                new Response.ErrorListener() {
+                    @Override
+                    // Handles errors that occur due to Volley
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Volley", "Error");
+
+                    }
                 }
-                if (scrollRange + verticalOffset == 0) {
-                    collapsingToolbar.setTitle(getString(R.string.app_name));
-                    isShow = true;
-                } else if (isShow) {
-                    collapsingToolbar.setTitle("");
-                    isShow = false;
-                }
-            }
-        });
-    }
+        );
 
-    /**
-     * RecyclerView item decoration - give equal margin around grid item
-     */
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-
-        private int spanCount;
-        private int spacing;
-        private boolean includeEdge;
-
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
-            this.spanCount = spanCount;
-            this.spacing = spacing;
-            this.includeEdge = includeEdge;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view); // item position
-            int column = position % spanCount; // item column
-
-            if (includeEdge) {
-                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
-                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
-
-                if (position < spanCount) { // top edge
-                    outRect.top = spacing;
-                }
-                outRect.bottom = spacing; // item bottom
-            } else {
-                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
-                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
-                if (position >= spanCount) {
-                    outRect.top = spacing; // item top
-                }
-            }
-        }
-    }
-
-    /**
-     * Converting dp to pixel
-     */
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
-    }
+        queue.add(arrayreq);
 
 
-    private void showDialog() {
-        if (!progressDialog.isShowing())
-            progressDialog.show();
-    }
-    private void hideDialog() {
-        if (progressDialog.isShowing())
-            progressDialog.dismiss();
     }
 
 }

@@ -40,7 +40,7 @@ import android.support.v4.app.Fragment;
  */
 public class Fitness extends Fragment {
 
-    private FitnessAdapter adapter;
+    private FeedsAdapter adapter;
     private List<FitnessModel> articleList;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -56,7 +56,7 @@ public class Fitness extends Fragment {
         recyclerView.setHasFixedSize(true);
 
         articleList = new ArrayList<>();
-        adapter = new FitnessAdapter(getActivity(), articleList);
+        adapter = new FeedsAdapter(getActivity(), articleList);
         recyclerView.setAdapter(adapter);
 
 

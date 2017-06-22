@@ -1,11 +1,9 @@
 <resources>
-    <string name="app_name">Uganda Workout And Fitness</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
+    <string name="app_name">Kluz</string>
     <string name="action_settings">Help</string>
-    <string name="btn_link_signup">Have no Account, Sign Up</string>
-    <string name="btn_login">Sign In</string>
-    <string name="hint_password">Password</string>
+    <string name="sell_item">Sell Your Item</string>
+    <string name="buy_item">Buy Item</string>
+    <string name="search_item">Search Item(s)</string>
+    <string name="permission_request_denied">Permission request denied</string>
+    <string name="error_gif">x or y bound size should be at least %1$dpx and file size should be no more than %2$sM</string>
 </resources>
